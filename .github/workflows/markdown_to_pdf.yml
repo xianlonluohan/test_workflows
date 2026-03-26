@@ -40,7 +40,8 @@ jobs:
             lmodern \
             tree \
             jq \
-            python3-pip
+            python3-pip \
+            python3-pygments
           
           pip3 install beautifulsoup4 markdown-it-py
       
@@ -346,8 +347,7 @@ jobs:
             pdfborder={0 0 0},
           }
           
-          \usepackage{listings}
-          \usepackage{xcolor}
+          \usepackage{minted}
           \usepackage{graphicx}
           \usepackage{float}
           \usepackage{placeins}
@@ -359,80 +359,27 @@ jobs:
           \usepackage{subcaption}
           \captionsetup[subfigure]{labelformat=empty, textformat=empty}
           
-          % GitHub-like code highlighting colors (based on manual conversion)
+          % 定义颜色
           \definecolor{codebg}{rgb}{0.98,0.98,0.98}
           \definecolor{framecolor}{rgb}{0.85,0.85,0.85}
-          \definecolor{keywordcolor}{RGB}{215,58,73}    % #d73a49
-          \definecolor{commentcolor}{RGB}{106,115,125}  % #6a737d
-          \definecolor{stringcolor}{RGB}{3,47,98}       % #032f62
-          \definecolor{functioncolor}{RGB}{111,66,193}  % #6f42c1
-          \definecolor{numbercolor}{RGB}{0,92,197}      % #005cc5
           
-          \lstset{
-            basicstyle=\ttfamily\small\selectfont,
-            keywordstyle=\color{keywordcolor}\bfseries,
-            commentstyle=\color{commentcolor}\itshape,
-            stringstyle=\color{stringcolor},
-            numberstyle=\tiny\color{gray},
-            stepnumber=1,
-            numbersep=5pt,
-            backgroundcolor=\color{codebg},
+          % 配置 minted 样式
+          \setminted{
+            style=tango,
+            bgcolor=codebg,
             frame=single,
             framesep=6pt,
             framerule=0.8pt,
-            rulecolor=\color{framecolor},
+            rulecolor=framecolor,
             breaklines=true,
-            breakatwhitespace=false,
-            breakautoindent=true,
-            breakindent=25pt,
-            showstringspaces=false,
+            breakanywhere=true,
             tabsize=2,
-            numbers=none,
+            fontsize=\small,
             xleftmargin=10pt,
             xrightmargin=10pt,
-            upquote=true,
-            columns=fullflexible,
-            keepspaces=true,
-            lineskip=2pt,
-            language=C,
-          }
-          
-          \lstdefinestyle{textstyle}{
-            basicstyle=\ttfamily\normalsize\selectfont,
-            backgroundcolor=\color{codebg},
-            frame=leftline,
-            framesep=8pt,
-            framerule=3pt,
-            rulecolor=\color{framecolor},
-            breaklines=true,
-            breakatwhitespace=false,
-            breakautoindent=true,
-            breakindent=2em,
-            showstringspaces=false,
-            tabsize=2,
             numbers=none,
-            xleftmargin=15pt,
-            xrightmargin=15pt,
-            upquote=true,
-            columns=fullflexible,
-            keepspaces=true,
-            lineskip=3pt,
+            autogobble,
           }
-          
-          \definecolor{quotebg}{RGB}{246,248,250}
-          \definecolor{quoteframe}{RGB}{225,228,232}
-          \newmdenv[
-            backgroundcolor=quotebg,
-            linecolor=quoteframe,
-            linewidth=0.5pt,
-            roundcorner=6pt,
-            innerleftmargin=12pt,
-            innerrightmargin=12pt,
-            innertopmargin=8pt,
-            innerbottommargin=8pt,
-            skipabove=6pt,
-            skipbelow=6pt,
-          ]{quotebox}
           
           \usepackage{float}
           \floatplacement{figure}{H}
@@ -518,6 +465,21 @@ jobs:
           \usepackage{fvextra}
           \usepackage{csquotes}
           
+          \definecolor{quotebg}{RGB}{246,248,250}
+          \definecolor{quoteframe}{RGB}{225,228,232}
+          \newmdenv[
+            backgroundcolor=quotebg,
+            linecolor=quoteframe,
+            linewidth=0.5pt,
+            roundcorner=6pt,
+            innerleftmargin=12pt,
+            innerrightmargin=12pt,
+            innertopmargin=8pt,
+            innerbottommargin=8pt,
+            skipabove=6pt,
+            skipbelow=6pt,
+          ]{quotebox}
+          
           \newcommand{\quoteblock}[1]{%
             \begin{quotebox}
             #1
@@ -601,9 +563,9 @@ jobs:
               --resource-path="$resource_paths" \
               -o "$dir_name/$base_name.pdf" \
               --pdf-engine=xelatex \
-              --listings \
+              --pdf-engine-opt=-shell-escape \
+              --highlight-style=pygments \
               --include-in-header=header.tex \
-              --lua-filter=quote-filter.lua \
               -V mainfont="Noto Sans CJK SC" \
               -V sansfont="Noto Sans CJK SC" \
               -V monofont="Noto Sans Mono CJK SC" \
