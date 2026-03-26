@@ -346,8 +346,16 @@ jobs:
             pdfborder={0 0 0},
           }
           
-          \usepackage{listings}
-          \usepackage{xcolor}
+          % 标题样式（更接近 GitHub）
+          \usepackage{titlesec}
+          \titleformat{\section}
+            {\normalfont\Large\bfseries}{\thesection}{1em}{}
+            [\titlerule]
+          \titleformat{\subsection}
+            {\normalfont\large\bfseries}{\thesubsection}{1em}{}
+          \titleformat{\subsubsection}
+            {\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+          
           \usepackage{graphicx}
           \usepackage{float}
           \usepackage{placeins}
@@ -364,67 +372,6 @@ jobs:
           \definecolor{framecolor2}{rgb}{0,0,0.8}
           \definecolor{quotebg}{rgb}{0.97,0.97,0.97}
           \definecolor{quoteframe}{rgb}{0.85,0.85,0.85}
-          
-          % 语法高亮颜色
-          \definecolor{commentcolor}{RGB}{128,128,128}   % 灰色
-          \definecolor{keywordcolor}{RGB}{0,0,255}      % 纯蓝色
-          \definecolor{stringcolor}{RGB}{0,128,0}       % 深绿色
-          \definecolor{numbercolor}{RGB}{128,0,0}       % 暗红色
-          \definecolor{identifiercolor}{RGB}{0,0,0}     % 黑色
-          
-          \lstset{
-            basicstyle=\ttfamily\normalsize\selectfont,
-            backgroundcolor=\color{codebg},
-            frame=single,
-            framesep=8pt,
-            framerule=1pt,
-            rulecolor=\color{framecolor},
-            breaklines=true,
-            breakatwhitespace=false,
-            breakautoindent=true,
-            breakindent=25pt,
-            showstringspaces=false,
-            tabsize=2,
-            numbers=none,
-            xleftmargin=15pt,
-            xrightmargin=15pt,
-            upquote=true,
-            columns=fullflexible,
-            keepspaces=true,
-            escapeinside={(*@}{@*)},
-            lineskip=2pt,
-            commentstyle=\color{commentcolor}\itshape,
-            keywordstyle=\color{keywordcolor}\bfseries,
-            stringstyle=\color{stringcolor},
-            identifierstyle=\color{identifiercolor},
-            numberstyle=\color{numbercolor},
-            morekeywords={*, constexpr, uint16_t, uint8_t, int32_t, int64_t, bool, true, false, namespace, using, public, private, protected, class, struct, enum, static, virtual, override, final, const, mutable, explicit, noexcept, nullptr, decltype, auto, template, typename, this, friend, operator, new, delete, try, catch, throw, noexcept, alignas, alignof, constexpr, static_assert, thread_local, asm, volatile, register},
-          }
-          
-          \lstdefinestyle{textstyle}{
-            basicstyle=\ttfamily\normalsize\selectfont,
-            backgroundcolor=\color{codebg},
-            frame=leftline,
-            framesep=8pt,
-            framerule=3pt,
-            rulecolor=\color{framecolor2},
-            breaklines=true,
-            breakatwhitespace=false,
-            breakautoindent=true,
-            breakindent=2em,
-            showstringspaces=false,
-            tabsize=2,
-            numbers=none,
-            xleftmargin=15pt,
-            xrightmargin=15pt,
-            upquote=true,
-            columns=fullflexible,
-            keepspaces=true,
-            escapeinside={},
-            lineskip=3pt,
-            breaklines=true,
-            breakindent=2.5em,
-          }
           
           \newmdenv[
             backgroundcolor=quotebg,
@@ -535,37 +482,18 @@ jobs:
           end
           
           function CodeBlock(el)
+            -- 对于 text 代码块，保持原样不进行高亮，转为 verbatim 环境
             if el.classes[1] == "text" then
-              return pandoc.RawBlock('latex', 
-                '\\begin{lstlisting}[style=textstyle]\n' .. 
-                el.text .. 
-                '\n\\end{lstlisting}')
+              return pandoc.RawBlock('latex', '\\begin{verbatim}\n' .. el.text .. '\n\\end{verbatim}')
             end
-            
-            -- 语言名称映射
-            local lang = el.classes[1]
-            if lang == "c++" then
-              lang = "C++"
-            elseif lang == "cpp" then
-              lang = "C++"
-            elseif lang == "c" then
-              lang = "C"
-            end
-            
-            if lang then
-              return pandoc.RawBlock('latex', 
-                '\\begin{lstlisting}[language=' .. lang .. ']\n' .. 
-                el.text .. 
-                '\n\\end{lstlisting}')
-            end
-            
-            return el
+            -- 其他语言代码块交给 Pandoc 的 --highlight-style 处理
+            return nil
           end
           
           function Str(el)
             local text = el.text
             text = text:gsub('（0,100）', '（0-100）')
-            text = text:gsub('（0%.100）', '0-100')
+            text = text:gsub('（0%.100）', '（0-100）')
             text = text:gsub('（(%d+)[.,](%d%d%d）', '（%1-%2）')
             return pandoc.Str(text)
           end
@@ -605,11 +533,12 @@ jobs:
             
             set +e
             
+            # 关键修改：使用 --highlight-style=github 替代 --listings
             pandoc "$md_file" \
               --resource-path="$resource_paths" \
               -o "$dir_name/$base_name.pdf" \
               --pdf-engine=xelatex \
-              --listings \
+              --highlight-style=github \
               --include-in-header=header.tex \
               --lua-filter=quote-filter.lua \
               -V mainfont="Noto Serif CJK SC" \
@@ -622,7 +551,6 @@ jobs:
               -V urlcolor=blue \
               -V graphics \
               --wrap=auto \
-              --highlight-style=tango \
               -f markdown \
               -M date="$CURRENT_DATE" \
               2>&1 >/dev/null
@@ -742,7 +670,8 @@ jobs:
           done
           
           cd pdf_collection
-          zip -r "../${REPO_NAME}-${TAG_NAME}.zip" .
+          # 压缩包名称格式：仓库名-标签名.zip
+          zip -r "../${REPO_NAME}-${TAG_NAME}.zip" . >/dev/null
           cd ..
           
           rm -rf pdf_collection
@@ -763,6 +692,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: "${{ github.ref_name }}"
+          # 注意：此处也需要使用仓库名-标签名.zip
           files: |
             ${{ github.event.repository.name }}-${{ github.ref_name }}.zip
           draft: false
