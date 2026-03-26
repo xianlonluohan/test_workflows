@@ -365,10 +365,12 @@ jobs:
           \definecolor{quotebg}{rgb}{0.97,0.97,0.97}
           \definecolor{quoteframe}{rgb}{0.85,0.85,0.85}
           
-          % 语法高亮颜色（修正定义）
-          \definecolor{commentcolor}{gray}{0.5}
-          \definecolor{keywordcolor}{rgb}{1,0.5,0}   % orange
-          \colorlet{stringcolor}{blue}
+          % 语法高亮颜色
+          \definecolor{commentcolor}{RGB}{128,128,128}   % 灰色
+          \definecolor{keywordcolor}{RGB}{0,0,255}      % 纯蓝色
+          \definecolor{stringcolor}{RGB}{0,128,0}       % 深绿色
+          \definecolor{numbercolor}{RGB}{128,0,0}       % 暗红色
+          \definecolor{identifiercolor}{RGB}{0,0,0}     % 黑色
           
           \lstset{
             basicstyle=\ttfamily\normalsize\selectfont,
@@ -391,12 +393,12 @@ jobs:
             keepspaces=true,
             escapeinside={(*@}{@*)},
             lineskip=2pt,
-            breaklines=true,
-            % 新增着色设置
-            commentstyle=\color{commentcolor},
-            keywordstyle=\color{keywordcolor},
+            commentstyle=\color{commentcolor}\itshape,
+            keywordstyle=\color{keywordcolor}\bfseries,
             stringstyle=\color{stringcolor},
-            identifierstyle=\color{black},
+            identifierstyle=\color{identifiercolor},
+            numberstyle=\color{numbercolor},
+            morekeywords={*, constexpr, uint16_t, uint8_t, int32_t, int64_t, bool, true, false, namespace, using, public, private, protected, class, struct, enum, static, virtual, override, final, const, mutable, explicit, noexcept, nullptr, decltype, auto, template, typename, this, friend, operator, new, delete, try, catch, throw, noexcept, alignas, alignof, constexpr, static_assert, thread_local, asm, volatile, register},
           }
           
           \lstdefinestyle{textstyle}{
@@ -540,7 +542,7 @@ jobs:
                 '\n\\end{lstlisting}')
             end
             
-            -- 处理语言映射以支持语法高亮
+            -- 语言名称映射
             local lang = el.classes[1]
             if lang == "c++" then
               lang = "C++"
@@ -557,7 +559,6 @@ jobs:
                 '\n\\end{lstlisting}')
             end
             
-            -- 其他代码块交由 pandoc 默认处理（也会使用 listings）
             return el
           end
           
