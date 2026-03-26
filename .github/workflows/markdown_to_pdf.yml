@@ -365,16 +365,30 @@ jobs:
           \definecolor{keywordcolor}{RGB}{215,58,73}    % #d73a49
           \definecolor{commentcolor}{RGB}{106,115,125}  % #6a737d
           \definecolor{stringcolor}{RGB}{3,47,98}       % #032f62
-          \definecolor{functioncolor}{RGB}{111,66,193}  % #6f42c1
           \definecolor{numbercolor}{RGB}{0,92,197}      % #005cc5
+          \definecolor{functioncolor}{RGB}{111,66,193}  % #6f42c1
+          
+          % 定义 C++ 语言（包含大量关键词和 Arduino 专用函数）
+          \lstdefinelanguage{C++}{
+            language=C,
+            morekeywords={alignas, alignof, and, and_eq, asm, auto, bitand, bitor, bool, break, case, catch, char, char16_t, char32_t, class, compl, concept, const, constexpr, const_cast, continue, decltype, default, delete, do, double, dynamic_cast, else, enum, explicit, export, extern, false, final, float, for, friend, goto, if, inline, int, long, mutable, namespace, new, noexcept, not, not_eq, nullptr, operator, or, or_eq, override, private, protected, public, register, reinterpret_cast, requires, return, short, signed, sizeof, static, static_assert, static_cast, struct, switch, template, this, thread_local, throw, true, try, typedef, typeid, typename, union, unsigned, using, virtual, void, volatile, while, xor, xor_eq},
+            morekeywords={[2]uint8_t, uint16_t, uint32_t, uint64_t, int8_t, int16_t, int32_t, int64_t, size_t, String, Serial, Wire, TwoWire, pinMode, digitalWrite, digitalRead, analogWrite, analogRead, delay, delayMicroseconds, millis, micros, map, constrain, abs, min, max, pow, sqrt, sin, cos, tan, random, randomSeed, attachInterrupt, detachInterrupt, interrupts, noInterrupts, yield, printf, sprintf, sscanf, malloc, free, calloc, realloc},
+            morekeywords={[3]DynamicJsonDocument, JsonObject, JsonArray, JsonVariant, serializeJson, deserializeJson, RegisterUserMcpDeclarator, RegisterUserMcpHandler, InitializeDevice, ProcessMainLoop, ai_vox::Engine, ai_vox::McpToolCallEvent, ai_vox::ParamSchema, SendMcpCallError, SendMcpCallResponse, GetInstance, em::Md40, TwoWire, SetEncoderMode, RunPwmDuty, set_speed_pid_p, set_speed_pid_i, set_speed_pid_d, set_position_pid_p, set_position_pid_i, set_position_pid_d, begin, Init, device_id, name, firmware_version},
+            alsoletter={_},
+            morecomment=[l]{//},
+            morecomment=[s]{/*}{*/},
+            morestring=[b]",
+          }
           
           \lstset{
+            language=C++,
             basicstyle=\ttfamily\small\selectfont,
-            keywordstyle=\color{keywordcolor}\bfseries,
+            keywordstyle=[1]\color{keywordcolor}\bfseries,
+            keywordstyle=[2]\color{functioncolor}\bfseries,
+            keywordstyle=[3]\color{functioncolor}\bfseries,
             commentstyle=\color{commentcolor}\itshape,
             stringstyle=\color{stringcolor},
             numberstyle=\tiny\color{numbercolor},
-            identifierstyle=\color{black},
             backgroundcolor=\color{codebg},
             frame=single,
             framesep=6pt,
@@ -393,20 +407,10 @@ jobs:
             columns=fullflexible,
             keepspaces=true,
             lineskip=2pt,
-            language=C,
-            morekeywords={constexpr, uint16_t, uint8_t, int16_t, int64_t, bool, true, false, nullptr, static_cast, DynamicJsonDocument, serializeJson, printf, Serial, delay, RegisterUserMcpDeclarator, RegisterUserMcpHandler, InitializeDevice, ProcessMainLoop},
-            alsoletter={_},
-            morecomment=[l]{//},
-            morestring=[b]",
-          }
-          
-          % 增强 C++ 高亮
-          \lstdefinelanguage{C++}{
-            language=C,
-            morekeywords={constexpr, uint16_t, uint8_t, int16_t, int64_t, bool, true, false, nullptr, static_cast, DynamicJsonDocument, serializeJson, printf, Serial, delay, RegisterUserMcpDeclarator, RegisterUserMcpHandler, InitializeDevice, ProcessMainLoop, namespace, public, private, protected, class, struct, enum, template, typename, using, noexcept, override, final, virtual, explicit, mutable, const, volatile, register, auto, decltype, sizeof, alignof, alignas, thread_local, static_assert, declval, typeid, dynamic_cast, reinterpret_cast, const_cast, static_assert, friend, operator, new, delete, throw, try, catch, finally, export, import, module},
-            alsoletter={_},
-            morecomment=[l]{//},
-            morestring=[b]",
+            emph={[1]constexpr, uint16_t, uint8_t, int16_t, int64_t, bool, true, false, nullptr, static_cast, dynamic_cast, reinterpret_cast, const_cast, printf, Serial, delay, map},
+            emphstyle=[1]\color{keywordcolor}\bfseries,
+            emph={[2]InitMd40, SetMd40MotorSpeed, McpToolControlMd40Motor, setup, loop},
+            emphstyle=[2]\color{functioncolor}\bfseries,
           }
           
           \lstdefinestyle{textstyle}{
