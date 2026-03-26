@@ -340,7 +340,7 @@ jobs:
           \usepackage{hyperref}
           \hypersetup{
             colorlinks=true,
-            linkcolor={rgb}{0.03,0.4,0.84},   % #0366d6
+            linkcolor={rgb}{0.03,0.4,0.84},
             urlcolor={rgb}{0.03,0.4,0.84},
             citecolor={rgb}{0.03,0.4,0.84},
             pdfborder={0 0 0},
@@ -359,9 +359,9 @@ jobs:
           \usepackage{subcaption}
           \captionsetup[subfigure]{labelformat=empty, textformat=empty}
           
-          % GitHub-like code highlighting colors
+          % GitHub-like code highlighting colors (based on manual conversion)
           \definecolor{codebg}{rgb}{0.98,0.98,0.98}
-          \definecolor{framecolor}{rgb}{0.8,0.8,0.8}
+          \definecolor{framecolor}{rgb}{0.85,0.85,0.85}
           \definecolor{keywordcolor}{RGB}{215,58,73}    % #d73a49
           \definecolor{commentcolor}{RGB}{106,115,125}  % #6a737d
           \definecolor{stringcolor}{RGB}{3,47,98}       % #032f62
@@ -378,8 +378,8 @@ jobs:
             numbersep=5pt,
             backgroundcolor=\color{codebg},
             frame=single,
-            framesep=8pt,
-            framerule=1pt,
+            framesep=6pt,
+            framerule=0.8pt,
             rulecolor=\color{framecolor},
             breaklines=true,
             breakatwhitespace=false,
@@ -388,17 +388,15 @@ jobs:
             showstringspaces=false,
             tabsize=2,
             numbers=none,
-            xleftmargin=15pt,
-            xrightmargin=15pt,
+            xleftmargin=10pt,
+            xrightmargin=10pt,
             upquote=true,
             columns=fullflexible,
             keepspaces=true,
-            escapeinside={(*@}{@*)},
             lineskip=2pt,
             language=C,
           }
           
-          % Additional styles for specific languages if needed
           \lstdefinestyle{textstyle}{
             basicstyle=\ttfamily\normalsize\selectfont,
             backgroundcolor=\color{codebg},
@@ -421,7 +419,6 @@ jobs:
             lineskip=3pt,
           }
           
-          % GitHub-style quote block
           \definecolor{quotebg}{RGB}{246,248,250}
           \definecolor{quoteframe}{RGB}{225,228,232}
           \newmdenv[
@@ -435,8 +432,6 @@ jobs:
             innerbottommargin=8pt,
             skipabove=6pt,
             skipbelow=6pt,
-            frametitleaboveskip=6pt,
-            frametitlebelowskip=6pt
           ]{quotebox}
           
           \usepackage{float}
@@ -619,7 +614,6 @@ jobs:
               -V urlcolor=blue \
               -V graphics \
               --wrap=auto \
-              --highlight-style=tango \
               -f markdown \
               -M date="$CURRENT_DATE" \
               2>&1 >/dev/null
