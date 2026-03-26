@@ -40,9 +40,8 @@ jobs:
             lmodern \
             tree \
             jq \
-            python3-pip \
-            python3-pygments
-          
+            python3-pip
+            
           pip3 install beautifulsoup4 markdown-it-py
       
       - name: "Clean HTML to Markdown converter with fixed link handling"
@@ -347,9 +346,8 @@ jobs:
             pdfborder={0 0 0},
           }
           
-          \usepackage{minted}
-          \usepackage{tcolorbox}
-          \tcbuselibrary{minted, skins}
+          \usepackage{listings}
+          \usepackage{xcolor}
           \usepackage{graphicx}
           \usepackage{float}
           \usepackage{placeins}
@@ -361,43 +359,77 @@ jobs:
           \usepackage{subcaption}
           \captionsetup[subfigure]{labelformat=empty, textformat=empty}
           
-          % 定义代码块颜色
-          \definecolor{codebg}{rgb}{0.98,0.98,0.98}
-          \definecolor{framecolor}{rgb}{0.85,0.85,0.85}
+          % GitHub 风格颜色
+          \definecolor{codebg}{RGB}{246,248,250}
+          \definecolor{framecolor}{RGB}{225,228,232}
+          \definecolor{keywordcolor}{RGB}{215,58,73}    % #d73a49
+          \definecolor{commentcolor}{RGB}{106,115,125}  % #6a737d
+          \definecolor{stringcolor}{RGB}{3,47,98}       % #032f62
+          \definecolor{functioncolor}{RGB}{111,66,193}  % #6f42c1
+          \definecolor{numbercolor}{RGB}{0,92,197}      % #005cc5
           
-          % 配置 minted 基本样式（不包含边框，边框由 tcolorbox 提供）
-          \setminted{
-            style=tango,
-            bgcolor=codebg,
+          \lstset{
+            basicstyle=\ttfamily\small\selectfont,
+            keywordstyle=\color{keywordcolor}\bfseries,
+            commentstyle=\color{commentcolor}\itshape,
+            stringstyle=\color{stringcolor},
+            numberstyle=\tiny\color{numbercolor},
+            identifierstyle=\color{black},
+            backgroundcolor=\color{codebg},
+            frame=single,
+            framesep=6pt,
+            framerule=0.8pt,
+            rulecolor=\color{framecolor},
             breaklines=true,
-            breakanywhere=true,
+            breakatwhitespace=false,
+            breakautoindent=true,
+            breakindent=25pt,
+            showstringspaces=false,
             tabsize=2,
-            fontsize=\small,
-            autogobble,
+            numbers=none,
+            xleftmargin=10pt,
+            xrightmargin=10pt,
+            upquote=true,
+            columns=fullflexible,
+            keepspaces=true,
+            lineskip=2pt,
+            language=C,
+            morekeywords={constexpr, uint16_t, uint8_t, int16_t, int64_t, bool, true, false, nullptr, static_cast, DynamicJsonDocument, serializeJson, printf, Serial, delay, RegisterUserMcpDeclarator, RegisterUserMcpHandler, InitializeDevice, ProcessMainLoop},
+            alsoletter={_},
+            morecomment=[l]{//},
+            morestring=[b]",
           }
           
-          % 重新定义 minted 环境，用 tcolorbox 包裹，添加边框和背景
-          \RenewDocumentEnvironment{minted}{v O{}}{%
-            \begin{tcolorbox}[
-              enhanced,
-              boxrule=0.8pt,
-              colback=codebg,
-              colframe=framecolor,
-              left=6pt,
-              right=6pt,
-              top=6pt,
-              bottom=6pt,
-              arc=4pt,
-              outer arc=4pt,
-              listing engine=minted,
-              minted language=#1,
-              minted options={#2,breaklines,autogobble},
-              listing only,
-            ]
-          }{\end{tcolorbox}}
+          % 增强 C++ 高亮
+          \lstdefinelanguage{C++}{
+            language=C,
+            morekeywords={constexpr, uint16_t, uint8_t, int16_t, int64_t, bool, true, false, nullptr, static_cast, DynamicJsonDocument, serializeJson, printf, Serial, delay, RegisterUserMcpDeclarator, RegisterUserMcpHandler, InitializeDevice, ProcessMainLoop, namespace, public, private, protected, class, struct, enum, template, typename, using, noexcept, override, final, virtual, explicit, mutable, const, volatile, register, auto, decltype, sizeof, alignof, alignas, thread_local, static_assert, declval, typeid, dynamic_cast, reinterpret_cast, const_cast, static_assert, friend, operator, new, delete, throw, try, catch, finally, export, import, module},
+            alsoletter={_},
+            morecomment=[l]{//},
+            morestring=[b]",
+          }
           
-          % 对于其他语言（如 text 块），保留原 minted 方式，但同样用 tcolorbox 包裹
-          % 这里确保所有 minted 环境都被包装
+          \lstdefinestyle{textstyle}{
+            basicstyle=\ttfamily\normalsize\selectfont,
+            backgroundcolor=\color{codebg},
+            frame=leftline,
+            framesep=8pt,
+            framerule=3pt,
+            rulecolor=\color{framecolor},
+            breaklines=true,
+            breakatwhitespace=false,
+            breakautoindent=true,
+            breakindent=2em,
+            showstringspaces=false,
+            tabsize=2,
+            numbers=none,
+            xleftmargin=15pt,
+            xrightmargin=15pt,
+            upquote=true,
+            columns=fullflexible,
+            keepspaces=true,
+            lineskip=3pt,
+          }
           
           \usepackage{float}
           \floatplacement{figure}{H}
@@ -581,8 +613,7 @@ jobs:
               --resource-path="$resource_paths" \
               -o "$dir_name/$base_name.pdf" \
               --pdf-engine=xelatex \
-              --pdf-engine-opt=-shell-escape \
-              --highlight-style=pygments \
+              --listings \
               --include-in-header=header.tex \
               --lua-filter=quote-filter.lua \
               -V mainfont="Noto Sans CJK SC" \
