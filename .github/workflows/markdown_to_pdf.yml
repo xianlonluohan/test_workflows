@@ -40,7 +40,9 @@ jobs:
             lmodern \
             tree \
             jq \
-            python3-pip
+            python3-pip \
+            fonts-dejavu \
+            fonts-dejavu-extra
 
           pip3 install beautifulsoup4 markdown-it-py pygments
 
@@ -334,9 +336,9 @@ jobs:
           \usepackage{xeCJK}
           \usepackage[UTF8]{ctex}
           % 英文字体
-          \setmainfont{Helvetica Neue}
-          \setsansfont{Helvetica Neue}
-          \setmonofont{SF Mono}
+          \setmainfont{DejaVu Serif}
+          \setsansfont{DejaVu Sans}
+          \setmonofont{DejaVu Sans Mono}
           % 中文字体
           \setCJKmainfont{Noto Serif CJK SC}
           \setCJKsansfont{Noto Sans CJK SC}
