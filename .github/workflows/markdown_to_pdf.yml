@@ -44,7 +44,7 @@ jobs:
             fonts-dejavu \
             fonts-dejavu-extra
 
-          pip3 install beautifulsoup4 markdown-it-py pygments
+          pip3 install beautifulsoup4 markdown-it-py
 
       - name: "Clean HTML to Markdown converter with fixed link handling"
         run: |
@@ -304,7 +304,6 @@ jobs:
                   processed_content = fix_tilde_in_text(processed_content)
 
                   # 保留常用HTML标签，供后续pandoc处理
-                  # 白名单：code, pre, span, div, p, br 等
                   processed_content = re.sub(r'<(?!@@@CODE_BLOCK_|@@@INLINE_CODE_|@@@QUOTE_BLOCK_)(?!\/?code>)(?!\/?pre>)(?!\/?span>)(?!\/?div>)(?!\/?p>)(?!\/?br>)[^>]+>', '', processed_content)
 
                   final_content = restore_code_blocks(processed_content, code_blocks, inline_code_blocks, quote_blocks)
@@ -354,22 +353,49 @@ jobs:
             citecolor={rgb}{0.13,0.4,0.84},
           }
 
-          \usepackage{minted}
+          % listings 代码块样式
+          \usepackage{listings}
           \usepackage{xcolor}
-          \usemintedstyle{github}
-          \setminted{
-            breaklines=true,
-            breakautoindent=true,
-            tabsize=2,
+          \definecolor{codebg}{rgb}{0.95,0.95,0.95}
+          \definecolor{codeframe}{rgb}{0.8,0.8,0.8}
+          \definecolor{comment}{rgb}{0.6,0.6,0.6}
+          \definecolor{keyword}{rgb}{0.0,0.4,0.8}
+          \definecolor{string}{rgb}{0.8,0.4,0.0}
+
+          \lstset{
+            basicstyle=\ttfamily\small,
+            backgroundcolor=\color{codebg},
             frame=single,
-            framesep=5pt,
             framerule=1pt,
-            rulecolor=lightgray,
+            rulecolor=\color{codeframe},
+            breaklines=true,
+            breakatwhitespace=false,
+            tabsize=2,
             numbers=left,
-            numberfirstline=true,
-            numbersep=5pt,
+            numberstyle=\tiny\color{gray},
+            numbersep=8pt,
             xleftmargin=15pt,
             xrightmargin=15pt,
+            showstringspaces=false,
+            commentstyle=\color{comment}\itshape,
+            keywordstyle=\color{keyword}\bfseries,
+            stringstyle=\color{string},
+            literate={\{}{\{}{1}{\}}{}}{1}{,}{,}{1}{;}{;}{1},
+          }
+
+          % 针对不同语言的微调
+          \lstdefinestyle{cpp}{
+            language=C++,
+            morekeywords={constexpr, override, final, nullptr, namespace},
+          }
+          \lstdefinestyle{c}{
+            language=C,
+          }
+          \lstdefinestyle{text}{
+            basicstyle=\ttfamily\small,
+            frame=leftline,
+            rulecolor=\color{black!30},
+            numbers=none,
           }
 
           \usepackage{graphicx}
@@ -383,9 +409,6 @@ jobs:
           \usepackage{subcaption}
           \captionsetup[subfigure]{labelformat=empty, textformat=empty}
 
-          \definecolor{codebg}{rgb}{0.98,0.98,0.98}
-          \definecolor{framecolor}{rgb}{0.8,0.8,0.8}
-          \definecolor{framecolor2}{rgb}{0,0,0.8}
           \definecolor{quotebg}{rgb}{0.97,0.97,0.97}
           \definecolor{quoteframe}{rgb}{0.85,0.85,0.85}
 
@@ -400,12 +423,7 @@ jobs:
             innerbottommargin=8pt,
             skipabove=6pt,
             skipbelow=6pt,
-            frametitleaboveskip=6pt,
-            frametitlebelowskip=6pt
           ]{quotebox}
-
-          \usepackage{float}
-          \floatplacement{figure}{H}
 
           \usepackage{booktabs}
           \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
@@ -417,16 +435,16 @@ jobs:
           \sloppy
           \emergencystretch=3em
 
-          % 标题样式（GitHub 风格）
+          % 标题样式（接近手动转的PDF）
           \usepackage{titlesec}
           \titleformat{\section}
-            {\Large\bfseries\sffamily}{\thesection}{1em}{}
+            {\Large\sffamily\bfseries}{\thesection}{1em}{}
           \titlespacing*{\section}{0pt}{2ex}{1ex}
           \titleformat{\subsection}
-            {\large\bfseries\sffamily}{\thesubsection}{1em}{}
+            {\large\sffamily\bfseries}{\thesubsection}{1em}{}
           \titlespacing*{\subsection}{0pt}{1.5ex}{0.8ex}
           \titleformat{\subsubsection}
-            {\normalsize\bfseries\sffamily}{\thesubsubsection}{1em}{}
+            {\normalsize\sffamily\bfseries}{\thesubsubsection}{1em}{}
           \titlespacing*{\subsubsection}{0pt}{1ex}{0.5ex}
 
           \renewcommand{\thesection}{\arabic{section}}
@@ -515,20 +533,32 @@ jobs:
           end
 
           function CodeBlock(el)
-            if el.classes[1] == "text" then
+            local lang = el.classes[1]
+            if lang == "text" then
               return pandoc.RawBlock('latex',
-                '\\begin{minted}[style=github]{text}\n' ..
+                '\\begin{lstlisting}[style=text]\n' ..
                 el.text ..
-                '\n\\end{minted}')
+                '\n\\end{lstlisting}')
+            elseif lang == "c" or lang == "cpp" or lang == "c++" then
+              local style = "cpp"
+              if lang == "c" then style = "c" end
+              return pandoc.RawBlock('latex',
+                '\\begin{lstlisting}[style=' .. style .. ']\n' ..
+                el.text ..
+                '\n\\end{lstlisting}')
+            else
+              -- 默认样式
+              return pandoc.RawBlock('latex',
+                '\\begin{lstlisting}\n' ..
+                el.text ..
+                '\n\\end{lstlisting}')
             end
-            -- 其他语言代码块由 minted 自动处理，不需要额外修改
-            return el
           end
 
           function Str(el)
             local text = el.text
             text = text:gsub('（0,100）', '（0-100）')
-            text = text:gsub('（0%.100）', '（0-100）')
+            text = text:gsub('（0%.100）', '0-100')
             text = text:gsub('（(%d+)[.,](%d%d%d）', '（%1-%2）')
             return pandoc.Str(text)
           end
@@ -542,19 +572,15 @@ jobs:
             return el
           end
 
-          -- 对 HTML Raw 元素进行基本转换（可选）
+          -- 简单的HTML标签转换
           function RawInline(el)
             if el.format == "html" then
               local text = el.text
-              -- 处理 <br> 标签
               text = text:gsub('<br%s*/?>', '\\newline')
-              -- 处理简单的 <span style="color: red;">text</span>
               text = text:gsub('<span%s+style="color:%s*([^"]+)"%s*>(.-)</span>',
                 function(color, content)
                   return '\\textcolor{' .. color .. '}{' .. content .. '}'
                 end)
-              -- 处理 <div> 标签（转为 minipage 或忽略）
-              text = text:gsub('<div[^>]*>(.-)</div>', '\\begin{minipage}{\\linewidth}%1\\end{minipage}')
               if text ~= el.text then
                 return pandoc.RawInline('latex', text)
               end
@@ -606,6 +632,7 @@ jobs:
               --pdf-engine=xelatex \
               --include-in-header=header.tex \
               --lua-filter=quote-filter.lua \
+              --listings \
               -V mainfont="Noto Serif CJK SC" \
               -V sansfont="Noto Sans CJK SC" \
               -V monofont="Noto Sans Mono CJK SC" \
@@ -615,8 +642,6 @@ jobs:
               -V linkcolor=blue \
               -V urlcolor=blue \
               -V graphics \
-              -V minted \
-              --pdf-engine-opt=-shell-escape \
               --wrap=auto \
               -f markdown+raw_html \
               -M date="$CURRENT_DATE" \
