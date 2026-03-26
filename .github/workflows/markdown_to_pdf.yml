@@ -348,6 +348,8 @@ jobs:
           }
           
           \usepackage{minted}
+          \usepackage{tcolorbox}
+          \tcbuselibrary{minted, skins}
           \usepackage{graphicx}
           \usepackage{float}
           \usepackage{placeins}
@@ -359,27 +361,43 @@ jobs:
           \usepackage{subcaption}
           \captionsetup[subfigure]{labelformat=empty, textformat=empty}
           
-          % 定义颜色
+          % 定义代码块颜色
           \definecolor{codebg}{rgb}{0.98,0.98,0.98}
           \definecolor{framecolor}{rgb}{0.85,0.85,0.85}
           
-          % 配置 minted 样式
+          % 配置 minted 基本样式（不包含边框，边框由 tcolorbox 提供）
           \setminted{
             style=tango,
             bgcolor=codebg,
-            frame=single,
-            framesep=6pt,
-            framerule=0.8pt,
-            rulecolor=framecolor,
             breaklines=true,
             breakanywhere=true,
             tabsize=2,
             fontsize=\small,
-            xleftmargin=10pt,
-            xrightmargin=10pt,
-            numbers=none,
             autogobble,
           }
+          
+          % 重新定义 minted 环境，用 tcolorbox 包裹，添加边框和背景
+          \RenewDocumentEnvironment{minted}{v O{}}{%
+            \begin{tcolorbox}[
+              enhanced,
+              boxrule=0.8pt,
+              colback=codebg,
+              colframe=framecolor,
+              left=6pt,
+              right=6pt,
+              top=6pt,
+              bottom=6pt,
+              arc=4pt,
+              outer arc=4pt,
+              listing engine=minted,
+              minted language=#1,
+              minted options={#2,breaklines,autogobble},
+              listing only,
+            ]
+          }{\end{tcolorbox}}
+          
+          % 对于其他语言（如 text 块），保留原 minted 方式，但同样用 tcolorbox 包裹
+          % 这里确保所有 minted 环境都被包装
           
           \usepackage{float}
           \floatplacement{figure}{H}
@@ -566,6 +584,7 @@ jobs:
               --pdf-engine-opt=-shell-escape \
               --highlight-style=pygments \
               --include-in-header=header.tex \
+              --lua-filter=quote-filter.lua \
               -V mainfont="Noto Sans CJK SC" \
               -V sansfont="Noto Sans CJK SC" \
               -V monofont="Noto Sans Mono CJK SC" \
